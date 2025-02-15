@@ -7,16 +7,13 @@ import io.restassured.specification.RequestSpecification;
 public class RestApiTest {
 
     public static void main(String[] args) {
-
         // listAllOfObject();
         // listOfObjectByIds();
         // singleObject();
         // addObject();
         // updateObject();
-        partiallyUpdateObject();
+        // partiallyUpdateObject();
         // deleteObject();
-
-
     }
 
     public static void listAllOfObject(){
