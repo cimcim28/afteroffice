@@ -9,7 +9,7 @@ public class RestApiTest {
     public static void main(String[] args) {
         // listAllOfObject();
         // listOfObjectByIds();
-        // singleObject();
+        singleObject();
         // addObject();
         // updateObject();
         // partiallyUpdateObject();
@@ -69,15 +69,17 @@ public class RestApiTest {
 
     public static void addObject(){
 
-        String json = "{\n" + //
-                        "   \"name\": \"Macbook Pro\",\n" + //
-                        "   \"data\": {\n" + //
-                        "      \"year\": 2025,\n" + //
-                        "      \"price\": 2025.99,\n" + //
-                        "      \"CPU model\": \"Intel Core\",\n" + //
-                        "      \"Hard disk size\": \"500GB\"\n" + //
-                        "   }\n" + //
-                        "}";
+        String json = """
+            {
+                "name": "Macbook Pro",
+                "data": {
+                    "year": 2025,
+                    "price": 2025.99,
+                    "CPU model": "Intel Core",
+                    "Hard disk size": "500GB"
+                }
+            }
+            """;
 
         RestAssured.baseURI = "https://api.restful-api.dev";
         RequestSpecification requestSpecification = RestAssured
@@ -98,15 +100,17 @@ public class RestApiTest {
     public static void updateObject(){
         // ff808181932badb601950897c7fd2db5
 
-        String json = "{\n" + //
-                        "   \"name\": \"Macbook Pro Update\",\n" + //
-                        "   \"data\": {\n" + //
-                        "      \"year\": 2026,\n" + //
-                        "      \"price\": 2026.99,\n" + //
-                        "      \"CPU model\": \"Intel Core Update\",\n" + //
-                        "      \"Hard disk size\": \"500GB Update\"\n" + //
-                        "   }\n" + //
-                        "}";
+        String json;
+        json = """
+               {
+                  "name": "Macbook Pro Update",
+                  "data": {
+                     "year": 2026,
+                     "price": 2026.99,
+                     "CPU model": "Intel Core Update",
+                     "Hard disk size": "500GB Update"
+                  }
+               }""";
 
         RestAssured.baseURI = "https://api.restful-api.dev";
         RequestSpecification requestSpecification = RestAssured
@@ -128,9 +132,11 @@ public class RestApiTest {
 
     public static void partiallyUpdateObject(){
 
-        String json = "{\n" + //
-                        "   \"name\": \"Apple MacBook Pro 16 (Updated Name)\"\n" + //
-                        "}";
+        String json = """
+                      {
+                         "name": "Apple MacBook Pro 16 (Updated Name)"
+                      }"""
+                        ;
 
         RestAssured.baseURI = "https://api.restful-api.dev";
         RequestSpecification requestSpecification = RestAssured
