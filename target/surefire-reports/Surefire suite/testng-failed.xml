@@ -3,11 +3,11 @@
 <suite thread-count="1" name="Failed suite [Surefire suite]" verbose="0">
   <test thread-count="1" name="Surefire test(failed)" verbose="0">
     <classes>
-      <class name="restapi.RestApiTest">
+      <class name="restapi.scenario.E2eTest">
         <methods>
-          <include name="updateObject"/>
+          <include name="scenarioE2eTest"/>
         </methods>
-      </class> <!-- restapi.RestApiTest -->
+      </class> <!-- restapi.scenario.E2eTest -->
     </classes>
   </test> <!-- Surefire test(failed) -->
 </suite> <!-- Failed suite [Surefire suite] -->
