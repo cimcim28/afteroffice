@@ -1,4 +1,4 @@
-package restapi.scenario;
+package scenario;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

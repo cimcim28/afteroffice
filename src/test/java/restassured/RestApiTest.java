@@ -1,4 +1,4 @@
-package restapi;
+package restassured;
 
 import java.util.List;
 
