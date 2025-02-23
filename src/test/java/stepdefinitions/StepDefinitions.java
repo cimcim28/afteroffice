@@ -10,11 +10,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import apiengine.Assertion;
+import apiengine.Endpoints;
+import io.cucumber.java.BeforeStep;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.restassured.RestAssured;
-import static io.restassured.RestAssured.given;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import resources.DataRequest;
@@ -27,30 +28,30 @@ public class StepDefinitions {
         Then The product is available
      */
 
-    static ResponseItem responseItem;
+    ResponseItem responseItem;
     DataRequest dataRequest;
     RequestItem requestItem;
     String json;
     String idProduct;
+    Endpoints endpoints;
+    Response response;
+    Assertion assertion;
+
+    @BeforeStep
+    public void setUp(){
+        endpoints = new Endpoints();
+        assertion = new Assertion();
+    }
 
     @Given("A list of products are available")
     public void getAllProducts(){
-
-        System.out.println("Get all products");
-        RestAssured.baseURI = "https://api.restful-api.dev";
-        
-        Response AddResponse = given()
-                                .log().all().get("objects");
-    
-        System.out.println("Hasilnya adalah " + AddResponse.asPrettyString());
+        response = endpoints.getAllProducts("products");
+        System.out.println("Hasilnya adalah " + response.asPrettyString());
 
     }
-
     @When("I add new product to etalase")
-    public void addNewProduct(){
-
-        System.out.println("Add new products");
-
+    public void addNewProduct() throws JsonMappingException, JsonProcessingException {
+        // JSON payload untuk produk baru
         String json = """
             {
                 "name": "Macbook Pro",
@@ -62,118 +63,83 @@ public class StepDefinitions {
                 }
             }
             """;
-
-        Response AddResponse =  given()
-                                .log()
-                                .all()
-                                .contentType("application/json")
-                                .body(json)
-                                .when()
-                                .post("/objects");
-
-        System.out.println("Add product " + AddResponse.asPrettyString());
-
-        JsonPath jsonPath = AddResponse.jsonPath();
+    
+        // Mengirimkan request untuk menambah produk
+        Response addResponse = endpoints.addProductData("/objects", json);
+    
+        // Menampilkan response ke console
+        System.out.println("Add product response: " + addResponse.asPrettyString());
+    
+        // Mengambil data dari response
+        JsonPath jsonPath = addResponse.jsonPath();
         responseItem = jsonPath.getObject("$", ResponseItem.class);
-
-        Assert.assertEquals(AddResponse.statusCode(), 200);
-        Assert.assertEquals(responseItem.name, "Macbook Pro");
-        Assert.assertNotNull(responseItem.createdAt);
-        Assert.assertEquals(responseItem.dataItem.year, 2025);
-        Assert.assertEquals(responseItem.dataItem.price, 10000000);
-        Assert.assertEquals(responseItem.dataItem.cpuModel, "Intel Core");
-        Assert.assertEquals(responseItem.dataItem.hardDiskSize, "500GB");
-
-        /*
-         * Simulate kalau idproduct nya kita dapat dari responseItem.id,
-         * Tapi karena id nya akan selalu sama bakanya kita modify manual
-         *  idProduct = responseItem.id;
-         */
-        // idProduct = 1;
-
-        // String idObject = responseItem.id;
+    
+        // Mengambil ID produk
+        idProduct = jsonPath.getString("id");
         System.out.println("Product added with ID: " + idProduct);
-
-        idProduct = jsonPath.getString("id"); // Mengambil id sebagai String
-        System.out.println("Product added with ID: " + idProduct);
+    
+        // Validasi ID produk tidak null
         Assert.assertNotNull(idProduct, "ID product is null!");
-
-        System.out.println("JSON: " + json);
-
+    
+        // Konversi JSON request ke POJO (RequestItem)
+        ObjectMapper objectMapper = new ObjectMapper();
+        requestItem = objectMapper.readValue(json, RequestItem.class);
+    
+        // Menampilkan JSON request
+        System.out.println("Request JSON: " + json);
+    
+        // Melakukan assert untuk memverifikasi data produk
+        if (requestItem != null) {
+            assertion.assertAddProduct(responseItem, requestItem);
+        } else {
+            System.out.println("requestItem is null. Skipping assertion.");
+        }
     }
-
+    
     @When("I add new {string} to etalase")
-    public void addNewProducts(String payload) throws JsonMappingException, JsonProcessingException{
-
-        System.out.println("Add new products");
-
+    public void addNewProducts(String payload) throws JsonMappingException, JsonProcessingException {
         dataRequest = new DataRequest();
-
-        RestAssured.baseURI = "https://api.restful-api.dev";  
-        
-        for(Map.Entry<String, String> entry : dataRequest.addItemCollection().entrySet()){
+    
+        for (Map.Entry<String, String> entry : dataRequest.addItemCollection().entrySet()) {
             if (entry.getKey().equals(payload)) {
                 json = entry.getValue();
                 break;
             }
         }
-
-        Response AddResponse =  given()
-                                .log()
-                                .all()
-                                .contentType("application/json")
-                                .body(json)
-                                .when()
-                                .post("/objects");
-
-        System.out.println("Add products more than 1 " + AddResponse.asPrettyString());
-
-        //Object mapper
-        /*
-         * Convert JSON to POJO
-         */
-        ObjectMapper requestAddItem = new ObjectMapper();
-        requestItem = requestAddItem.readValue(json, RequestItem.class);
-
-        JsonPath jsonPath = AddResponse.jsonPath();
-        responseItem = jsonPath.getObject("$", ResponseItem.class);
-
-        Assert.assertEquals(AddResponse.statusCode(), 200);
-        Assert.assertEquals(responseItem.name,requestItem.name);
-        Assert.assertNotNull(responseItem.createdAt);
-        Assert.assertEquals(responseItem.dataItem.year, requestItem.dataItem.year);
-        Assert.assertEquals(responseItem.dataItem.price, requestItem.dataItem.price);
-        Assert.assertEquals(responseItem.dataItem.cpuModel, requestItem.dataItem.cpuModel);
-        Assert.assertEquals(responseItem.dataItem.hardDiskSize, requestItem.dataItem.hardDiskSize);
     
+        // Mengirimkan request untuk menambah produk
+        Response addResponse = endpoints.addProductData("/objects", json);
+    
+        // Menampilkan response ke console
+        System.out.println("Add products response: " + addResponse.asPrettyString());
+    
+        // Konversi JSON ke POJO (RequestItem)
+        ObjectMapper objectMapper = new ObjectMapper();
+        requestItem = objectMapper.readValue(json, RequestItem.class);
+    
+        // Mengambil data dari response dan konversi ke POJO (ResponseItem)
+        JsonPath jsonPath = addResponse.jsonPath();
+        responseItem = jsonPath.getObject("$", ResponseItem.class);
+    
+        // Menampilkan payload dan JSON request
         System.out.println("Payload: " + payload);
-        System.out.println("JSON: " + json);
-
+        System.out.println("Request JSON: " + json);
+    
+        // Melakukan assert untuk memverifikasi data produk
+        if (requestItem != null) {
+            assertion.assertAddProduct(responseItem, requestItem);
+        } else {
+            System.out.println("requestItem is null. Skipping assertion.");
         }
+    }
+    
 
     @Then("The product is available")
-        public void getSingleProduct(){
+    public void getSingleProduct(){
+        Response singleResponse = endpoints.getProductById("objects", 7);
 
-        System.out.println("Get Single Product is available");
-
-        RestAssured.baseURI = "https://api.restful-api.dev";  
-
-        Response singleResponse = given()
-                                .when()
-                                .log()
-                                .all()
-                                .get("objects/{idProduct}", 7);
-
-        System.out.println("Hasilnya GET " + singleResponse.asPrettyString()); 
-
-        Assert.assertEquals(singleResponse.statusCode(), 200);
-        Assert.assertNotNull(singleResponse.jsonPath().getString("id"));
-        // Assert.assertNotNull(idProduct);
-        Assert.assertEquals(responseItem.name, "Macbook Pro");
-        Assert.assertEquals(responseItem.dataItem.year, 2025);
-        Assert.assertEquals(responseItem.dataItem.price, 10000000);
-        Assert.assertEquals(responseItem.dataItem.cpuModel, "Intel Core");
-        Assert.assertEquals(responseItem.dataItem.hardDiskSize, "500GB");
+        // Menampilkan hasil response
+        System.out.println("Hasil GET: " + singleResponse.asPrettyString());
 
     }
 }

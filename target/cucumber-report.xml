@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Cucumber" time="7.337" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-02-23T05:11:08.564891Z">
-<testcase classname="End to End simulation test" name="As a user I can add new data with some data - #1.1" time="6.031">
+<testsuite name="Cucumber" time="7.982" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-02-23T14:28:55.741264Z">
+<testcase classname="End to End simulation test" name="As a user I can add new data" time="6.026">
+<system-out><![CDATA[
+Given A list of products are available......................................passed
+When I add new product to etalase...........................................passed
+Then The product is available...............................................passed
+]]></system-out>
+</testcase>
+<testcase classname="End to End simulation test" name="As a user I can add new data with some data - #1.1" time="0.719">
 <system-out><![CDATA[
 Given A list of products are available......................................passed
 When I add new "addItem" to etalase.........................................passed
 Then The product is available...............................................passed
 ]]></system-out>
 </testcase>
-<testcase classname="End to End simulation test" name="As a user I can add new data with some data - #1.2" time="0.934">
+<testcase classname="End to End simulation test" name="As a user I can add new data with some data - #1.2" time="0.778">
 <system-out><![CDATA[
 Given A list of products are available......................................passed
 When I add new "addItem2" to etalase........................................passed
