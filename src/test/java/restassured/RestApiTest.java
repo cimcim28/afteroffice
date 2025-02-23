@@ -159,8 +159,6 @@ public class RestApiTest {
 
     @Test
     public static void updateObject(){
-        // ff808181932badb601952bcb48177ecf
-
         String json;
         json = """
                {

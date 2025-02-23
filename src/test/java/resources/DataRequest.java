@@ -43,5 +43,37 @@ public class DataRequest {
 
         return dataCollection;
     }
+
+    public Map<String, String> updateItemCollection(){
+        Map<String, String> dataCollection = new HashMap<>();
+
+        dataCollection.put("updateItem", """
+          {
+                  "name": "Macbook Pro Update",
+                  "data": {
+                     "year": 2026,
+                     "price": 12000000,
+                     "CPU model": "Intel Core Update",
+                     "Hard disk size": "500GB Update"
+        }
+                     }
+         """);
+
+         dataCollection.put("updateItem2", """
+          {
+                  "name": "Macbook Pro Update",
+                  "data": {
+                     "year": 2026,
+                     "price": 12000000,
+                     "CPU model": "Intel Core Update",
+                     "Hard disk size": "500GB Update"
+        }
+                     }
+         """);
+
+        return dataCollection;
+    }
 }
+
+
 

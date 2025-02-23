@@ -35,7 +35,7 @@ public class Endpoints {
                 .post(path);
     }
 
-    public Response getProductById(String path, int idProduct) {
+    public Response getProductById(String path, String idProduct) {
         return RestAssured.given()
                 .pathParam("path", path)
                 .pathParam("idProduct", idProduct)
@@ -43,4 +43,12 @@ public class Endpoints {
                 .get("{path}/{idProduct}");
     }
 
+    public Response updateProductById(String path, String idProduct, String json) {
+        return RestAssured.given()
+                .body(json)
+                .pathParam("path", path)
+                .pathParam("idProduct", idProduct)
+                .when()
+                .put("{path}/{idProduct}");
+    }
 }

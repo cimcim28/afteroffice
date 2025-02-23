@@ -46,9 +46,10 @@ public class StepDefinitions {
     @Given("A list of products are available")
     public void getAllProducts(){
         response = endpoints.getAllProducts("products");
-        System.out.println("Hasilnya adalah " + response.asPrettyString());
+        System.out.println("Hasilnya get All Product " + response.asPrettyString());
 
     }
+
     @When("I add new product to etalase")
     public void addNewProduct() throws JsonMappingException, JsonProcessingException {
         // JSON payload untuk produk baru
@@ -70,30 +71,21 @@ public class StepDefinitions {
         // Menampilkan response ke console
         System.out.println("Add product response: " + addResponse.asPrettyString());
     
-        // Mengambil data dari response
+       // Ambil idProduct
         JsonPath jsonPath = addResponse.jsonPath();
-        responseItem = jsonPath.getObject("$", ResponseItem.class);
-    
-        // Mengambil ID produk
         idProduct = jsonPath.getString("id");
         System.out.println("Product added with ID: " + idProduct);
-    
-        // Validasi ID produk tidak null
         Assert.assertNotNull(idProduct, "ID product is null!");
-    
-        // Konversi JSON request ke POJO (RequestItem)
+
+        // Konversi JSON ke RequestItem
         ObjectMapper objectMapper = new ObjectMapper();
         requestItem = objectMapper.readValue(json, RequestItem.class);
-    
-        // Menampilkan JSON request
-        System.out.println("Request JSON: " + json);
-    
-        // Melakukan assert untuk memverifikasi data produk
-        if (requestItem != null) {
-            assertion.assertAddProduct(responseItem, requestItem);
-        } else {
-            System.out.println("requestItem is null. Skipping assertion.");
-        }
+
+        // Konversi response ke ResponseItem
+        responseItem = jsonPath.getObject("$", ResponseItem.class);
+
+        // Validasi produk
+        assertion.assertAddProduct(responseItem, requestItem);
     }
     
     @When("I add new {string} to etalase")
@@ -113,33 +105,51 @@ public class StepDefinitions {
         // Menampilkan response ke console
         System.out.println("Add products response: " + addResponse.asPrettyString());
     
-        // Konversi JSON ke POJO (RequestItem)
+        // Ambil idProduct
+        JsonPath jsonPath = addResponse.jsonPath();
+        idProduct = jsonPath.getString("id");
+        System.out.println("Product added with ID: " + idProduct);
+        Assert.assertNotNull(idProduct, "ID product is null!");
+
+        // Konversi JSON request ke RequestItem
         ObjectMapper objectMapper = new ObjectMapper();
         requestItem = objectMapper.readValue(json, RequestItem.class);
-    
-        // Mengambil data dari response dan konversi ke POJO (ResponseItem)
-        JsonPath jsonPath = addResponse.jsonPath();
+
+        // Konversi response ke ResponseItem
         responseItem = jsonPath.getObject("$", ResponseItem.class);
-    
-        // Menampilkan payload dan JSON request
-        System.out.println("Payload: " + payload);
-        System.out.println("Request JSON: " + json);
-    
-        // Melakukan assert untuk memverifikasi data produk
-        if (requestItem != null) {
-            assertion.assertAddProduct(responseItem, requestItem);
-        } else {
-            System.out.println("requestItem is null. Skipping assertion.");
-        }
+
+        // Validasi produk
+        assertion.assertAddProduct(responseItem, requestItem);
     }
     
-
     @Then("The product is available")
     public void getSingleProduct(){
-        Response singleResponse = endpoints.getProductById("objects", 7);
+
+        if (idProduct == null) {
+            throw new IllegalStateException("idProduct is null! Make sure to add a product first.");
+        }
+        Response singleResponse = endpoints.getProductById("objects", idProduct);
 
         // Menampilkan hasil response
         System.out.println("Hasil GET: " + singleResponse.asPrettyString());
+    }
 
+    @Then("I can update item {string}")
+    public void updateSingleProduct(String payload){
+
+        for(Map.Entry<String, String> entry : dataRequest.addItemCollection().entrySet()){
+            if (entry.getKey().equals(payload)) {
+                json = entry.getValue();
+                break;
+            }
+        }
+        // Validasi idProduct
+        if (idProduct == null) {
+            throw new IllegalStateException("idProduct is null! Cannot update product.");
+        }
+        response = endpoints.updateProductById("objects", idProduct, json);
+
+        // Tampilkan response
+        System.out.println("Update product response: " + response.asPrettyString());
     }
 }
